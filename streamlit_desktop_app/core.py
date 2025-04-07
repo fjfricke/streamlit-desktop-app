@@ -8,7 +8,6 @@ from typing import Optional, Dict
 
 import webview
 from streamlit.web import cli as stcli
-import webbrowser
 
 
 def find_free_port() -> int:
@@ -175,25 +174,10 @@ def start_desktop_app(
         # Wait for the Streamlit server to start
         wait_for_server(port)
 
-        # Open the Streamlit app in the default browser
-        url = f"http://localhost:{port}"
-        webbrowser.open(url)
-
-        # Start pywebview with an empty view and a close button
-        def close_window():
-            webview.destroy_window()
-
+        webview.settings['ALLOW_DOWNLOADS'] = True
+        # Start pywebview with the Streamlit server URL
         webview.create_window(
-            title,
-            html="""
-            <html>
-                <body style='display: flex; justify-content: center; align-items: center; height: 100%;'>
-                    <button onclick='window.pywebview.api.close()'>Close</button>
-                </body>
-            </html>""",
-            width=width,
-            height=height,
-            js_api={"close": close_window}
+            title, f"http://localhost:{port}", width=width, height=height
         )
         webview.start()
     finally:
